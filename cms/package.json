@@ -1,0 +1,15 @@
+{
+  "name": "aspire-gems-studio",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "sanity dev",
+    "deploy": "sanity deploy"
+  },
+  "dependencies": {
+    "@sanity/vision": "latest",
+    "sanity": "latest",
+    "react": "latest",
+    "react-dom": "latest"
+  }
+}
