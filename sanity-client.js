@@ -37,13 +37,19 @@
 
     if (Array.isArray(payload.products) && payload.products.length) {
       fallback.products = payload.products.map((item, index) => {
-        const key = `cms-product-${item._id || index}`;
-        if (item.imageUrl) window.ASPIRE_MEDIA[key] = item.imageUrl;
+        const gallery = Array.isArray(item.imageUrls) ? item.imageUrls.filter(Boolean) : [];
+        const imageKeys = gallery.map((url, imageIndex) => {
+          const key = `cms-product-${item._id || index}-${imageIndex}`;
+          window.ASPIRE_MEDIA[key] = url;
+          return key;
+        });
+        const fallbackImage = fallback.products[index % fallback.products.length]?.image;
         return {
           id: item.slug?.current || slug(item.name) || `product-${index + 1}`,
           name: item.name,
           description: item.description || '',
-          image: item.imageUrl ? key : fallback.products[index % fallback.products.length]?.image,
+          image: imageKeys[0] || fallbackImage,
+          images: imageKeys.length ? imageKeys : [fallbackImage].filter(Boolean),
           category: item.categoryName || '',
           collection: item.collection || '',
           gem: item.gemstone || '',
@@ -71,7 +77,7 @@
         "settings": *[_type == "siteSettings"][0],
         "categories": *[_type == "category" && visible != false] | order(order asc){_id,name,slug,"imageUrl":image.asset->url},
         "filters": *[_type == "filterGroup" && visible != false] | order(order asc){_id,label,key,options},
-        "products": *[_type == "product"] | order(featured desc, name asc){_id,name,slug,description,collection,gemstone,colour,shape,origin,metal,carat,availability,featured,offerLabel,certification,"categoryName":category->name,"imageUrl":images[0].asset->url}
+        "products": *[_type == "product"] | order(featured desc, name asc){_id,name,slug,description,collection,gemstone,colour,shape,origin,metal,carat,availability,featured,offerLabel,certification,"categoryName":category->name,"imageUrls":images[].asset->url}
       }`;
       const apiVersion = config.apiVersion || '2026-07-01';
       const dataset = config.dataset || 'production';
